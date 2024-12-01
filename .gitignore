@@ -4,3 +4,4 @@
 .direnv
 nohup.out
 .idea/
+.vscode/

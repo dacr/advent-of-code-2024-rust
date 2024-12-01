@@ -1,78 +1,36 @@
 mod day01 {
+    use regex::Regex;
 
-    fn find_first_digit(input: &String) -> u32 {
-        let result = input
-            .find(|c: char| c.is_digit(10))
-            .map(|i: usize| input.chars().nth(i).unwrap())
-            .unwrap()
-            .to_digit(10)
-            .unwrap_or(0);
-        // println!("first={v}", v = result);
-        result
-    }
-
-    fn find_last_digit(input: &String) -> u32 {
-        let result = input
-            .rfind(|c: char| c.is_digit(10))
-            .map(|i: usize| input.chars().nth(i).unwrap())
-            .unwrap()
-            .to_digit(10)
-            .unwrap_or(0);
-        // println!("last={v}", v = result);
-        result
-    }
-
-    fn resolve_star1(lines: Vec<String>) -> i32 {
+    fn parse(lines: Vec<String>) -> Vec<Vec<i32>> {
+        let sep = Regex::new(r" +").unwrap();
         lines
             .iter()
-            .map(|line| (find_first_digit(line) * 10 + find_last_digit(line)) as i32)
-            .sum()
+            .map(|line| line.trim())
+            .map(|line| sep.splitn(line, 2))
+            .map(|splitted| splitted.into_iter().map(|s| s.parse().unwrap()).collect())
+            .collect()
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    fn resolve_star1(lines: Vec<String>) -> i32 {
+        let data = parse(lines);
+        let mut left: Vec<i32> = data.iter().map(|row| row[0]).collect();
+        left.sort();
+        let mut right: Vec<i32> = data.iter().map(|row| row[1]).collect();
+        right.sort();
+        let diff = left.iter().zip(right.iter()).map(|(&a, &b)| (a - b).abs());
+        diff.sum()
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
 
-    use phf::phf_map;
-
-    static FIXES: phf::Map<&'static str, i32> = phf_map! {
-        "one"=>1,
-        "two"=>2,
-        "three"=>3,
-        "four"=>4,
-        "five"=>5,
-        "six"=>6,
-        "seven"=>7,
-        "eight"=>8,
-        "nine"=>9,
-    };
-
-    fn find_first(input: &str) -> i32 {
-        match FIXES
-            .into_iter()
-            .find(|(&key, &value)| input.starts_with(&key))
-        {
-            Some((&key, &num)) => num,
-            None if input.chars().nth(0).filter(|ch| ch.is_digit(10)).is_some() => {
-                input.chars().nth(0).unwrap().to_digit(10).unwrap() as i32
-            }
-            None => find_first(&input[1..]),
-        }
-    }
-    fn find_last(input: &str) -> i32 {
-        match FIXES
-            .into_iter()
-            .rfind(|(&key, &value)| input.starts_with(&key))
-        {
-            Some((&key, &num)) => num,
-            None if input.chars().nth(0).filter(|ch| ch.is_digit(10)).is_some() => {
-                input.chars().nth(0).unwrap().to_digit(10).unwrap() as i32
-            }
-            None => find_last(&input[1..]),
-        }
-    }
-
     fn resolve_star2(lines: Vec<String>) -> i32 {
-        lines
-            .iter()
-            .map(|line| (find_first(line) * 10 + find_last(line)) as i32)
+        let data = parse(lines);
+        let left: Vec<i32> = data.iter().map(|row| row[0]).collect();
+        let right: Vec<i32> = data.iter().map(|row| row[1]).collect();
+
+        left.iter()
+            .map(|n| n * (right.iter().filter(|o| n.eq(o)).count() as i32))
             .sum()
     }
 
@@ -101,7 +59,7 @@ mod day01 {
         }
         #[test]
         fn result_star2_test() {
-            let data1 = read_lines("data/day01/example-2.txt");
+            let data1 = read_lines("data/day01/example-1.txt");
             let result1 = super::resolve_star2(data1);
             assert_eq!(result1, 31);
 
