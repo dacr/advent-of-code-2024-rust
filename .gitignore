@@ -1,0 +1,6 @@
+/target
+/result
+/result-lib
+.direnv
+nohup.out
+.idea/
