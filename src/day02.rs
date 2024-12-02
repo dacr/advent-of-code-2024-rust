@@ -37,13 +37,24 @@ mod day02 {
 
     // -----------------------------------------------------------------------------------------------------------------
 
+    fn remove_at_index_or_keep(report: &Vec<i32>, index: usize) -> Vec<i32> {
+        let mut result = report.clone();
+        if index < report.len() {
+            result.remove(index);
+        }
+        result
+    }
+
     fn report_fixable_check(report: &Vec<i32>, check: fn(i32, i32) -> bool) -> bool {
-        //let candidates = (0..report.len() - 1)
-        //    .into_iter()
-        //    .map(|i| report.clone().remove(i))
-        //    .collect();
-        //candidates
-        true
+        let candidates: Vec<Vec<i32>> = (0..report.len()) // +1 because we want the case without any removal
+            .into_iter()
+            .map(|i| remove_at_index_or_keep(report, i))
+            .collect();
+
+        candidates
+            .iter()
+            .find(|report| report_check(report, check))
+            .is_some()
     }
 
     fn resolve_star2(lines: Vec<String>) -> i32 {
