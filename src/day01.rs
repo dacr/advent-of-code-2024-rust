@@ -57,6 +57,7 @@ mod day01 {
             let result2 = super::resolve_star1(data2);
             assert_eq!(result2, 2344935);
         }
+
         #[test]
         fn result_star2_test() {
             let data1 = read_lines("data/day01/example-1.txt");
