@@ -1,5 +1,5 @@
 mod day03 {
-    use regex::{Captures, Match, Matches, Regex};
+    use regex::{Matches, Regex};
 
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -17,14 +17,14 @@ mod day03 {
     // -----------------------------------------------------------------------------------------------------------------
 
     fn resolve_star2(content: String) -> i32 {
-        let instrRE = Regex::new(r"(?:(mul)\(\d+,\d+\))|(?:(do)\(\))|(?:(don't)\(\))").unwrap();
-        let instrs = instrRE.find_iter(content.as_str());
+        let instr_re = Regex::new(r"(?:(mul)\(\d+,\d+\))|(?:(do)\(\))|(?:(don't)\(\))").unwrap();
+        let instrs = instr_re.find_iter(content.as_str());
 
         fn compute(mut remain: Matches, current: i32, doit: bool) -> i32 {
-            let mulRE = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
+            let mul_re = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
             match remain.next() {
                 Some(m) if m.as_str().contains("mul") && doit => {
-                    match mulRE.captures(m.as_str()).map(|c| c.extract()) {
+                    match mul_re.captures(m.as_str()).map(|c| c.extract()) {
                         None => compute(remain, current, doit),
                         Some((_, [a, b])) => compute(
                             remain,
@@ -36,7 +36,7 @@ mod day03 {
                 Some(m) if m.as_str().contains("mul") => compute(remain, current, doit),
                 Some(m) if m.as_str().contains("don't") => compute(remain, current, false),
                 Some(m) if m.as_str().contains("do") => compute(remain, current, true),
-                Some(m) => compute(remain, current, doit),
+                Some(_) => compute(remain, current, doit),
                 None => current,
             }
         }
@@ -49,13 +49,13 @@ mod day03 {
     mod tests {
         use std::fs;
 
-        fn read_lines(filename: &str) -> Vec<String> {
-            fs::read_to_string(filename)
-                .unwrap()
-                .lines()
-                .map(String::from)
-                .collect()
-        }
+        // fn read_lines(filename: &str) -> Vec<String> {
+        //     fs::read_to_string(filename)
+        //         .unwrap()
+        //         .lines()
+        //         .map(String::from)
+        //         .collect()
+        // }
 
         fn read_content(filename: &str) -> String {
             fs::read_to_string(filename).unwrap()

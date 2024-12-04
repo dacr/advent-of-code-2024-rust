@@ -12,6 +12,7 @@
         nixd # Nix language server
         cargo-watch
         config.process-compose.cargo-doc-live.outputs.package
+        rust-script
       ];
     };
   };
