@@ -35,12 +35,10 @@ mod day05 {
 
         let page_to_produces: PagesToProduceList = match parts.next() {
             None => vec![],
-            Some(produces) => {
-                produces
-                    .lines()
-                    .map(|line| line.split(",").map(|s| s.parse().unwrap()).collect())
-                    .collect()
-            },
+            Some(produces) => produces
+                .lines()
+                .map(|line| line.split(",").map(|s| s.parse().unwrap()).collect())
+                .collect(),
         };
 
         (page_ordering_rules, page_to_produces)
@@ -71,8 +69,46 @@ mod day05 {
 
     // -----------------------------------------------------------------------------------------------------------------
 
+    fn has_bad_ordering(pages: &PagesToProduce, rules: &PageOrderingRules) -> bool {
+        rules
+            .iter()
+            .find(|rule| {
+                let before = pages.iter().position(|&page| page == rule.before);
+                let after = pages.iter().position(|&page| page == rule.after);
+                before.is_some() && after.is_some() && before.unwrap() > after.unwrap()
+            })
+            .is_some()
+    }
+    
+    fn fix_ordering(pages: &PagesToProduce, rules: &PageOrderingRules) -> PagesToProduce {
+        let fixed = rules.iter().fold(pages.clone(), |mut pages, rule| {
+            let before = pages.iter().position(|&page| page == rule.before);
+            let after = pages.iter().position(|&page| page == rule.after);
+            if before.is_some() && after.is_some() && before.unwrap() > after.unwrap() {
+                let before = before.unwrap();
+                let after = after.unwrap();
+                pages.swap(before, after);
+                pages
+            } else { 
+                pages
+            }
+        });
+        
+        if fixed == *pages {
+            fixed
+        } else {
+            fix_ordering(&fixed, &rules)
+        }
+    }
+
     fn resolve_star2(content: String) -> i32 {
-        0
+        let (orderings, pages_to_produce_list) = parse(content);
+        pages_to_produce_list
+            .iter()
+            .filter(|pages| has_bad_ordering(&pages, &orderings))
+            .map(|pages| fix_ordering(&pages, &orderings))
+            .map(|pages| get_center_page(&pages))
+            .sum()
     }
 
     // =================================================================================================================
